@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CSKH SOP – Học sinh học online nước ngoài</title>
+<style>
+  :root {
+    --ink: #1a1a2e;
+    --ink-2: #3d3d5c;
+    --ink-3: #6b6b8a;
+    --ink-4: #a0a0b8;
+    --surface: #f7f7fb;
+    --surface-2: #eeeef6;
+    --surface-3: #e4e4f0;
+    --white: #ffffff;
+    --border: #dddde8;
+    --border-2: #c8c8da;
+    --accent: #3b5bdb;
+    --accent-light: #eef1ff;
+    --accent-mid: #748ffc;
+    --urgent: #c92a2a;
+    --urgent-light: #fff5f5;
+    --urgent-border: #ffc9c9;
+    --warn: #e67700;
+    --warn-light: #fff9db;
+    --warn-border: #ffe066;
+    --ok: #2b8a3e;
+    --ok-light: #ebfbee;
+    --ok-border: #8ce99a;
+    --info: #1971c2;
+    --info-light: #e7f5ff;
+    --info-border: #a5d8ff;
+    --teal: #0c8599;
+    --teal-light: #e3fafc;
+    --teal-border: #99e9f2;
+    --purple: #6741d9;
+    --purple-light: #f3f0ff;
+    --purple-border: #b197fc;
+    --sidebar-w: 260px;
+    --header-h: 60px;
+    --radius: 8px;
+    --radius-lg: 12px;
+    --font-sans: 'Inter', 'Segoe UI', system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font-sans); background: var(--surface); color: var(--ink); font-size: 14px; line-height: 1.6; min-height: 100vh; }
+  a { color: var(--accent); text-decoration: none; }
+  .app { display: flex; min-height: 100vh; }
+
+  /* SIDEBAR */
+  .sidebar { width: var(--sidebar-w); background: var(--ink); color: #c8c8da; display: flex; flex-direction: column; position: fixed; top: 0; left: 0; bottom: 0; z-index: 100; overflow-y: auto; }
+  .sidebar-logo { padding: 20px 20px 16px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+  .sidebar-logo .brand { font-size: 13px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: #fff; display: flex; align-items: center; gap: 8px; }
+  .sidebar-logo .brand-dot { width: 8px; height: 8px; background: var(--accent-mid); border-radius: 50%; flex-shrink: 0; }
+  .sidebar-logo .subtitle { font-size: 11px; color: var(--ink-4); margin-top: 3px; padding-left: 16px; }
+  .sidebar-section { padding: 16px 12px 4px; }
+  .sidebar-section-label { font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-4); padding: 0 8px; margin-bottom: 6px; }
+  .nav-item { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: var(--radius); cursor: pointer; font-size: 13px; color: #b0b0cc; transition: background .15s, color .15s; border: none; background: none; width: 100%; text-align: left; }
+  .nav-item:hover { background: rgba(255,255,255,0.07); color: #fff; }
+  .nav-item.active { background: rgba(116,143,252,0.18); color: #fff; }
+  .nav-item .nav-icon { width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+  .nav-item .nav-count { margin-left: auto; font-size: 10px; background: rgba(255,255,255,0.12); color: #c8c8da; padding: 1px 6px; border-radius: 10px; }
+  .nav-item.active .nav-count { background: rgba(116,143,252,0.3); color: var(--accent-mid); }
+  .sidebar-footer { margin-top: auto; padding: 14px 16px; border-top: 1px solid rgba(255,255,255,0.08); font-size: 11px; color: var(--ink-4); line-height: 1.5; }
+
+  /* MAIN */
+  .main { margin-left: var(--sidebar-w); flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
+  .topbar { height: var(--header-h); background: var(--white); border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 28px; gap: 16px; position: sticky; top: 0; z-index: 50; }
+  .topbar-title { font-size: 15px; font-weight: 600; color: var(--ink); flex: 1; }
+  .search-wrap { position: relative; flex: 1; max-width: 360px; }
+  .search-wrap input { width: 100%; padding: 7px 12px 7px 34px; border: 1px solid var(--border); border-radius: 6px; font-size: 13px; background: var(--surface); color: var(--ink); outline: none; transition: border-color .15s; font-family: var(--font-sans); }
+  .search-wrap input:focus { border-color: var(--accent-mid); }
+  .search-icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--ink-4); font-size: 14px; pointer-events: none; }
+  .content { padding: 28px; }
+
+  /* ADD BUTTON in topbar */
+  .btn-add-case { display: flex; align-items: center; gap: 6px; padding: 7px 14px; background: var(--accent); color: #fff; border: none; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: var(--font-sans); transition: opacity .15s; white-space: nowrap; }
+  .btn-add-case:hover { opacity: .88; }
+
+  /* SYNC STATUS */
+  .sync-status { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--ink-4); white-space: nowrap; }
+  .sync-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--ink-4); flex-shrink: 0; transition: background .2s; }
+  .sync-dot.online { background: var(--ok); }
+  .sync-dot.offline { background: var(--urgent); }
+
+  /* STATS */
+  .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 28px; }
+  .stat-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 16px 18px; }
+  .stat-label { font-size: 11px; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600; }
+  .stat-value { font-size: 26px; font-weight: 700; color: var(--ink); margin: 4px 0 2px; line-height: 1; }
+  .stat-note { font-size: 11px; color: var(--ink-4); }
+  .stat-card.accent { border-left: 3px solid var(--accent); }
+  .stat-card.urgent { border-left: 3px solid var(--urgent); }
+  .stat-card.warn { border-left: 3px solid var(--warn); }
+  .stat-card.ok { border-left: 3px solid var(--ok); }
+
+  /* PRINCIPLES */
+  .principles-box { background: var(--ink); border-radius: var(--radius-lg); padding: 20px 24px; margin-bottom: 28px; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px 24px; }
+  .principle-num { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; color: var(--accent-mid); text-transform: uppercase; margin-bottom: 4px; }
+  .principle-text { font-size: 13px; color: #c8c8da; line-height: 1.5; }
+  .principle-text strong { color: #fff; font-weight: 600; }
+
+  /* SECTION HEADING */
+  .section-heading { font-size: 13px; font-weight: 700; color: var(--ink); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+  .section-heading::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  /* CASES */
+  .cases-grid { display: flex; flex-direction: column; gap: 10px; }
+  .case-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; transition: box-shadow .15s, border-color .15s; }
+  .case-card:hover { border-color: var(--border-2); }
+  .case-card.is-open { border-color: var(--border-2); box-shadow: 0 2px 12px rgba(0,0,0,0.07); }
+  .case-card[data-group="technical"]     { border-left: 3px solid #a5d8ff; }
+  .case-card[data-group="timezone"]      { border-left: 3px solid var(--teal-border); }
+  .case-card[data-group="payment"]       { border-left: 3px solid var(--warn-border); }
+  .case-card[data-group="content"]       { border-left: 3px solid var(--purple-border); }
+  .case-card[data-group="communication"] { border-left: 3px solid var(--ok-border); }
+  .case-card[data-group="retention"]     { border-left: 3px solid #ffa8a8; }
+
+  .case-header { display: flex; align-items: center; gap: 12px; padding: 14px 18px; cursor: pointer; user-select: none; }
+  .case-icon { width: 34px; height: 34px; border-radius: var(--radius); display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+
+  .badge { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 4px; flex-shrink: 0; white-space: nowrap; }
+  .badge-urgent { background: var(--urgent-light); color: var(--urgent); border: 1px solid var(--urgent-border); }
+  .badge-medium { background: var(--warn-light); color: var(--warn); border: 1px solid var(--warn-border); }
+  .badge-normal { background: var(--ok-light); color: var(--ok); border: 1px solid var(--ok-border); }
+
+  .case-title-wrap { flex: 1; min-width: 0; }
+  .case-title { font-size: 14px; font-weight: 600; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .case-meta-inline { font-size: 11px; color: var(--ink-4); margin-top: 1px; }
+
+  /* EDIT PENCIL BTN */
+  .btn-edit-card { width: 30px; height: 30px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; transition: background .15s, border-color .15s; color: var(--ink-3); font-size: 14px; }
+  .btn-edit-card:hover { background: var(--accent-light); border-color: var(--accent-mid); color: var(--accent); }
+
+  .chevron-btn { width: 26px; height: 26px; border-radius: 50%; border: 1px solid var(--border); background: var(--surface); display: flex; align-items: center; justify-content: center; font-size: 10px; color: var(--ink-3); flex-shrink: 0; transition: transform .2s, background .15s; }
+  .is-open .chevron-btn { transform: rotate(180deg); background: var(--surface-2); }
+
+  /* CASE BODY */
+  .case-body { display: none; padding: 0 18px 18px; border-top: 1px solid var(--border); }
+  .is-open .case-body { display: block; }
+  .body-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 16px; }
+  @media (max-width: 768px) { .body-cols { grid-template-columns: 1fr; } }
+  .col-label { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-4); margin-bottom: 10px; }
+  .step-list { display: flex; flex-direction: column; gap: 8px; }
+  .step-item { display: flex; gap: 10px; align-items: flex-start; }
+  .step-num { width: 22px; height: 22px; border-radius: 50%; background: var(--surface-2); border: 1px solid var(--border); color: var(--ink-3); font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+  .step-num.first { background: var(--accent-light); border-color: var(--accent-mid); color: var(--accent); }
+  .step-text { font-size: 13px; color: var(--ink-2); line-height: 1.55; }
+  .meta-grid { display: flex; flex-direction: column; gap: 10px; }
+  .meta-row-item { display: flex; flex-direction: column; gap: 2px; }
+  .meta-key { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-4); }
+  .meta-val { font-size: 13px; color: var(--ink-2); font-weight: 500; }
+  .meta-val.sla-urgent { color: var(--urgent); }
+  .meta-val.sla-medium { color: var(--warn); }
+  .meta-val.sla-normal { color: var(--ok); }
+  .note-box { margin-top: 14px; padding: 10px 14px; background: var(--warn-light); border-left: 3px solid var(--warn); border-radius: 0 var(--radius) var(--radius) 0; font-size: 12px; color: var(--warn); line-height: 1.55; }
+  .template-block { margin-top: 14px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+  .template-header { display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; border-bottom: 1px solid var(--border); background: var(--surface-2); }
+  .template-header span { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3); }
+  .copy-btn { font-size: 11px; color: var(--accent); font-weight: 600; cursor: pointer; background: none; border: none; font-family: var(--font-sans); padding: 2px 6px; border-radius: 4px; transition: background .15s; }
+  .copy-btn:hover { background: var(--accent-light); }
+  .template-text { padding: 10px 12px; font-size: 12px; color: var(--ink-2); line-height: 1.65; font-style: italic; white-space: pre-wrap; }
+  .policy-box { margin-top: 14px; padding: 12px 14px; background: var(--accent-light); border: 1px solid rgba(59,91,219,0.2); border-radius: var(--radius); font-size: 12px; color: var(--accent); line-height: 1.6; }
+  .policy-box strong { font-weight: 700; display: block; margin-bottom: 4px; }
+  .empty-state { text-align: center; padding: 48px 24px; color: var(--ink-3); font-size: 14px; }
+  .empty-state .empty-icon { font-size: 32px; margin-bottom: 12px; }
+
+  /* ═══════════════════════════════════════
+     MODAL EDITOR
+  ═══════════════════════════════════════ */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(10,10,20,0.55);
+    z-index: 999; display: flex; align-items: flex-start; justify-content: center;
+    padding: 32px 16px; overflow-y: auto;
+    opacity: 0; pointer-events: none; transition: opacity .2s;
+  }
+  .modal-overlay.show { opacity: 1; pointer-events: all; }
+  .modal {
+    background: var(--white); border-radius: var(--radius-lg); width: 100%; max-width: 680px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.18);
+    transform: translateY(12px); transition: transform .2s;
+    overflow: hidden;
+  }
+  .modal-overlay.show .modal { transform: translateY(0); }
+  .modal-header {
+    display: flex; align-items: center; gap: 12px;
+    padding: 18px 22px; border-bottom: 1px solid var(--border);
+    background: var(--surface);
+  }
+  .modal-header-title { font-size: 15px; font-weight: 700; color: var(--ink); flex: 1; }
+  .modal-header-sub { font-size: 12px; color: var(--ink-3); }
+  .modal-close { width: 30px; height: 30px; border-radius: 50%; border: 1px solid var(--border); background: var(--white); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 16px; color: var(--ink-3); transition: background .15s; }
+  .modal-close:hover { background: var(--surface-2); color: var(--ink); }
+  .modal-body { padding: 22px; display: flex; flex-direction: column; gap: 18px; }
+  .modal-footer { padding: 14px 22px; border-top: 1px solid var(--border); display: flex; align-items: center; gap: 10px; background: var(--surface); }
+  .modal-footer-left { flex: 1; }
+
+  /* Form fields */
+  .field { display: flex; flex-direction: column; gap: 5px; }
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .field label { font-size: 11px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: var(--ink-3); }
+  .field input, .field select, .field textarea {
+    padding: 8px 10px; border: 1px solid var(--border); border-radius: 6px;
+    font-size: 13px; color: var(--ink); background: var(--white); font-family: var(--font-sans);
+    outline: none; transition: border-color .15s;
+  }
+  .field input:focus, .field select:focus, .field textarea:focus { border-color: var(--accent-mid); }
+  .field textarea { resize: vertical; min-height: 70px; line-height: 1.5; }
+  .field select { cursor: pointer; }
+
+  /* Steps editor */
+  .steps-editor { display: flex; flex-direction: column; gap: 6px; }
+  .step-edit-row { display: flex; gap: 6px; align-items: flex-start; }
+  .step-edit-row input {
+    flex: 1; padding: 7px 10px; border: 1px solid var(--border); border-radius: 6px;
+    font-size: 13px; color: var(--ink); font-family: var(--font-sans);
+    outline: none; transition: border-color .15s;
+  }
+  .step-edit-row input:focus { border-color: var(--accent-mid); }
+  .step-drag-handle { cursor: grab; color: var(--ink-4); font-size: 14px; padding: 7px 4px; user-select: none; flex-shrink: 0; }
+  .btn-icon { width: 30px; height: 30px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 14px; color: var(--ink-3); transition: all .15s; flex-shrink: 0; }
+  .btn-icon:hover { background: var(--urgent-light); border-color: var(--urgent-border); color: var(--urgent); }
+  .btn-add-step { display: flex; align-items: center; gap: 6px; padding: 7px 12px; border: 1px dashed var(--border-2); border-radius: 6px; background: transparent; color: var(--ink-3); font-size: 13px; cursor: pointer; font-family: var(--font-sans); transition: all .15s; width: 100%; margin-top: 2px; }
+  .btn-add-step:hover { border-color: var(--accent-mid); color: var(--accent); background: var(--accent-light); }
+
+  /* Buttons */
+  .btn-primary { padding: 9px 20px; background: var(--accent); color: #fff; border: none; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: var(--font-sans); transition: opacity .15s; }
+  .btn-primary:hover { opacity: .88; }
+  .btn-secondary { padding: 9px 16px; background: var(--surface-2); color: var(--ink-2); border: 1px solid var(--border); border-radius: 6px; font-size: 13px; font-weight: 500; cursor: pointer; font-family: var(--font-sans); transition: background .15s; }
+  .btn-secondary:hover { background: var(--surface-3); }
+  .btn-danger { padding: 9px 16px; background: var(--urgent-light); color: var(--urgent); border: 1px solid var(--urgent-border); border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: var(--font-sans); transition: background .15s; }
+  .btn-danger:hover { background: #ffe0e0; }
+
+  /* Delete confirm */
+  .delete-confirm { background: var(--urgent-light); border: 1px solid var(--urgent-border); border-radius: 6px; padding: 10px 14px; font-size: 12px; color: var(--urgent); display: none; }
+  .delete-confirm.show { display: flex; align-items: center; gap: 10px; }
+
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border-2); border-radius: 3px; }
+
+  /* ── SIGNATURE ── */
+  .sig-sidebar {
+    margin-top: 18px;
+    padding-top: 14px;
+    border-top: 1px solid rgba(255,255,255,0.07);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+  }
+  .sig-sidebar svg { opacity: .75; transition: opacity .3s; }
+  .sig-sidebar:hover svg { opacity: 1; }
+  .sig-sidebar .sig-caption {
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.2);
+    font-style: italic;
+  }
+
+  .sig-watermark {
+    position: fixed;
+    bottom: 22px;
+    right: 28px;
+    z-index: 10;
+    pointer-events: none;
+    opacity: 0.07;
+    transition: opacity .4s;
+  }
+  .sig-watermark:hover { opacity: 0.18; pointer-events: auto; }
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="sidebar-logo">
+    <div class="brand"><span class="brand-dot"></span>CSKH · SOP</div>
+    <div class="subtitle">Học sinh online nước ngoài</div>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">Tất cả nhóm</div>
+    <button class="nav-item active" onclick="filterGroup('all', this)">
+      <span class="nav-icon">📋</span> Tất cả tình huống <span class="nav-count" id="cnt-all">15</span>
+    </button>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">Phân loại</div>
+    <button class="nav-item" onclick="filterGroup('technical', this)">
+      <span class="nav-icon">🔧</span> Kỹ thuật &amp; đăng nhập <span class="nav-count" id="cnt-technical"></span>
+    </button>
+    <button class="nav-item" onclick="filterGroup('timezone', this)">
+      <span class="nav-icon">🕐</span> Múi giờ &amp; lịch học <span class="nav-count" id="cnt-timezone"></span>
+    </button>
+    <button class="nav-item" onclick="filterGroup('payment', this)">
+      <span class="nav-icon">💳</span> Học phí &amp; thanh toán <span class="nav-count" id="cnt-payment"></span>
+    </button>
+    <button class="nav-item" onclick="filterGroup('content', this)">
+      <span class="nav-icon">📚</span> Nội dung &amp; học tập <span class="nav-count" id="cnt-content"></span>
+    </button>
+    <button class="nav-item" onclick="filterGroup('communication', this)">
+      <span class="nav-icon">💬</span> Giao tiếp &amp; hỗ trợ <span class="nav-count" id="cnt-communication"></span>
+    </button>
+    <button class="nav-item" onclick="filterGroup('retention', this)">
+      <span class="nav-icon">🔄</span> Giữ chân &amp; khiếu nại <span class="nav-count" id="cnt-retention"></span>
+    </button>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">Mức độ ưu tiên</div>
+    <button class="nav-item" onclick="filterPriority('urgent', this)">
+      <span class="nav-icon" style="color:#c92a2a">●</span> Khẩn cấp
+    </button>
+    <button class="nav-item" onclick="filterPriority('medium', this)">
+      <span class="nav-icon" style="color:#e67700">●</span> Trung bình
+    </button>
+    <button class="nav-item" onclick="filterPriority('normal', this)">
+      <span class="nav-icon" style="color:#2b8a3e">●</span> Bình thường
+    </button>
+  </div>
+  <div class="sidebar-footer">
+    Phiên bản 3.0 · Đồng bộ thời gian thực<br>
+    Dùng nội bộ – CSKH &amp; Account Manager
+    <div class="sig-sidebar">
+      <!-- Calligraphy SVG: Anh Thảo -->
+      <svg width="120" height="48" viewBox="0 0 120 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- "Anh" stroke -->
+        <path d="M8 38 C10 20 14 10 18 8 C21 7 22 12 20 20 C18 28 15 34 14 38"
+              stroke="#748ffc" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <path d="M10 26 C13 24 17 23 20 24"
+              stroke="#748ffc" stroke-width="1.3" stroke-linecap="round" fill="none"/>
+        <path d="M24 14 C24 22 23 30 23 38"
+              stroke="#748ffc" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+        <path d="M24 20 C27 17 31 15 34 16 C37 17 38 21 37 27 C36 33 33 37 30 39 C27 41 25 40 24 38"
+              stroke="#748ffc" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <!-- dot on i / nét chấm -->
+        <circle cx="24" cy="10" r="1.2" fill="#748ffc" opacity="0.8"/>
+
+        <!-- thin separator -->
+        <line x1="44" y1="10" x2="44" y2="40" stroke="rgba(116,143,252,0.2)" stroke-width="0.8"/>
+
+        <!-- "Thảo" stroke -->
+        <path d="M52 14 C58 13 66 13 72 14"
+              stroke="#a5d8ff" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+        <path d="M62 14 C62 22 61 30 60 38"
+              stroke="#a5d8ff" stroke-width="1.6" stroke-linecap="round" fill="none"/>
+        <path d="M50 22 C54 20 60 19 66 20 C70 21 72 24 70 28"
+              stroke="#a5d8ff" stroke-width="1.4" stroke-linecap="round" fill="none"/>
+        <path d="M70 28 C72 32 70 37 66 39 C62 41 57 40 54 37 C51 34 51 28 54 25"
+              stroke="#a5d8ff" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <!-- huyền dấu above Thảo -->
+        <path d="M57 7 C59 5 62 5 64 6"
+              stroke="#a5d8ff" stroke-width="1.1" stroke-linecap="round" fill="none" opacity="0.7"/>
+
+        <!-- flourish underline -->
+        <path d="M6 43 C30 46 70 46 114 42"
+              stroke="url(#sigGrad)" stroke-width="0.8" stroke-linecap="round" fill="none" opacity="0.5"/>
+        <defs>
+          <linearGradient id="sigGrad" x1="6" y1="43" x2="114" y2="42" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stop-color="#748ffc"/>
+            <stop offset="100%" stop-color="#a5d8ff"/>
+          </linearGradient>
+        </defs>
+      </svg>
+      <span class="sig-caption">Anh Thảo</span>
+    </div>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-title" id="page-title">Tất cả tình huống</div>
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="search-input" placeholder="Tìm tình huống, từ khoá..." oninput="doSearch(this.value)">
+    </div>
+    <div style="font-size:12px;color:var(--ink-3);white-space:nowrap" id="result-count">15 tình huống</div>
+    <div class="sync-status" id="sync-status" title="Trạng thái đồng bộ dữ liệu">
+      <span class="sync-dot" id="sync-dot"></span>
+      <span id="sync-text">Đang kết nối...</span>
+    </div>
+    <button class="btn-add-case" onclick="openModal(null)">＋ Thêm tình huống</button>
+  </div>
+
+  <div class="content">
+    <div class="stats-row">
+      <div class="stat-card urgent"><div class="stat-label">Khẩn – SLA ≤ 1h</div><div class="stat-value" id="s-urgent">7</div><div class="stat-note">Cần xử lý ngay</div></div>
+      <div class="stat-card warn"><div class="stat-label">Trung bình – SLA ≤ 24h</div><div class="stat-value" id="s-medium">5</div><div class="stat-note">Xử lý trong ngày</div></div>
+      <div class="stat-card ok"><div class="stat-label">Bình thường – SLA 48h</div><div class="stat-value" id="s-normal">3</div><div class="stat-note">Theo quy trình</div></div>
+      <div class="stat-card accent"><div class="stat-label">Tổng tình huống</div><div class="stat-value" id="s-total">15</div><div class="stat-note">6 nhóm phân loại</div></div>
+    </div>
+
+    <div class="principles-box">
+      <div class="principle-item"><div class="principle-num">Nguyên tắc 01</div><div class="principle-text"><strong>Log mọi case vào CRM</strong> – không có tình huống nào xử lý miệng mà không có dấu vết.</div></div>
+      <div class="principle-item"><div class="principle-num">Nguyên tắc 02</div><div class="principle-text"><strong>Phân cấp rõ ràng L1 → L2 → Manager</strong> – escalate đúng người, đúng lúc, không để quá SLA.</div></div>
+      <div class="principle-item"><div class="principle-num">Nguyên tắc 03</div><div class="principle-text"><strong>Follow-up sau khi đóng case</strong> – 7 ngày hoặc 30 ngày tùy mức độ để đo hài lòng thực sự.</div></div>
+      <div class="principle-item"><div class="principle-num">Nguyên tắc 04</div><div class="principle-text"><strong>Không khoá học sinh đang học</strong> trong khi xử lý thanh toán. Trải nghiệm học liên tục là ưu tiên số 1.</div></div>
+    </div>
+
+    <div class="section-heading">Bộ xử lý tình huống</div>
+    <div class="cases-grid" id="cases-grid"></div>
+    <div class="empty-state" id="empty-state" style="display:none"><div class="empty-icon">🔍</div>Không tìm thấy tình huống phù hợp.</div>
+  </div>
+</div>
+</div>
+
+<!-- ═══════════ MODAL EDITOR ═══════════ -->
+<!-- Watermark signature -->
+<div class="sig-watermark">
+  <svg width="220" height="90" viewBox="0 0 220 90" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <!-- ANH - large calligraphy -->
+    <path d="M12 72 C15 40 22 18 30 12 C36 8 39 16 36 34 C33 50 27 62 25 72"
+          stroke="#3b5bdb" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    <path d="M16 48 C22 44 30 42 36 44"
+          stroke="#3b5bdb" stroke-width="2.2" stroke-linecap="round" fill="none"/>
+    <path d="M42 22 C42 40 40 56 40 72"
+          stroke="#3b5bdb" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+    <path d="M42 36 C49 30 57 27 63 28 C69 30 71 38 69 48 C67 58 61 66 55 70 C49 74 44 72 42 68"
+          stroke="#3b5bdb" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    <circle cx="42" cy="15" r="2.2" fill="#3b5bdb"/>
+
+    <!-- Separator flourish -->
+    <path d="M78 12 C80 50 80 50 78 78" stroke="rgba(59,91,219,0.25)" stroke-width="1" fill="none"/>
+
+    <!-- THẢO - large calligraphy -->
+    <path d="M90 24 C103 22 118 22 130 24"
+          stroke="#1971c2" stroke-width="2.6" stroke-linecap="round" fill="none"/>
+    <path d="M110 24 C109 40 108 56 106 72"
+          stroke="#1971c2" stroke-width="2.8" stroke-linecap="round" fill="none"/>
+    <path d="M88 40 C96 36 108 34 118 36 C126 38 130 44 127 52"
+          stroke="#1971c2" stroke-width="2.3" stroke-linecap="round" fill="none"/>
+    <path d="M127 52 C131 60 128 70 120 74 C112 78 100 76 93 70 C86 64 86 52 92 46"
+          stroke="#1971c2" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    <!-- dấu hỏi above Thảo -->
+    <path d="M102 11 C106 7 112 8 115 11 C117 14 115 17 112 16"
+          stroke="#1971c2" stroke-width="1.6" stroke-linecap="round" fill="none" opacity="0.8"/>
+    <circle cx="112" cy="19" r="1.5" fill="#1971c2" opacity="0.8"/>
+
+    <!-- Grand underline flourish -->
+    <path d="M8 82 C55 88 130 88 212 80"
+          stroke="url(#wGrad)" stroke-width="1.4" stroke-linecap="round" fill="none" opacity="0.6"/>
+    <!-- small decorative dot -->
+    <circle cx="214" cy="80" r="2" fill="#748ffc" opacity="0.5"/>
+    <defs>
+      <linearGradient id="wGrad" x1="8" y1="82" x2="212" y2="80" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stop-color="#3b5bdb"/>
+        <stop offset="100%" stop-color="#1971c2"/>
+      </linearGradient>
+    </defs>
+  </svg>
+</div>
+<div class="modal-overlay" id="modal-overlay" onclick="maybeCloseModal(event)">
+  <div class="modal" id="modal">
+    <div class="modal-header">
+      <div>
+        <div class="modal-header-title" id="modal-title">Chỉnh sửa tình huống</div>
+        <div class="modal-header-sub" id="modal-sub">Thay đổi sẽ đồng bộ ngay cho cả nhóm</div>
+      </div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body" id="modal-body">
+      <!-- filled by JS -->
+    </div>
+    <div class="modal-footer">
+      <div class="modal-footer-left">
+        <div class="delete-confirm" id="delete-confirm">
+          <span>Xác nhận xoá tình huống này?</span>
+          <button class="btn-danger" onclick="confirmDelete()" style="padding:5px 12px;font-size:12px">Xoá luôn</button>
+          <button class="btn-secondary" onclick="document.getElementById('delete-confirm').classList.remove('show')" style="padding:5px 10px;font-size:12px">Huỷ</button>
+        </div>
+        <button class="btn-danger" id="btn-delete" onclick="askDelete()" style="display:none">🗑 Xoá tình huống</button>
+      </div>
+      <button class="btn-secondary" onclick="closeModal()">Huỷ</button>
+      <button class="btn-primary" onclick="saveModal()">💾 Lưu thay đổi</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/12.15.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/12.15.0/firebase-database-compat.js"></script>
+
+<script>
+/* ═══════════════════════════════════════════
+   DATA
+═══════════════════════════════════════════ */
+const DEFAULT_CASES = [
+  { id:1, group:"technical", icon:"🔧", priority:"urgent", priorityLabel:"Khẩn", title:"Học sinh không đăng nhập được / mất kết nối", sla:"Xử lý trong 30 phút", slaClass:"sla-urgent", owner:"CSKH L1 → IT nếu > 30 phút", steps:[{text:"Xác nhận lỗi: nền tảng học, thiết bị, múi giờ, trình duyệt.",first:true},{text:"Gửi checklist kỹ thuật nhanh (reset mật khẩu, clear cache, thử trình duyệt khác)."},{text:"Nếu chưa giải quyết trong 15 phút → escalate IT, đồng thời thông báo học sinh."},{text:"Sắp xếp buổi học bù nếu gián đoạn > 10 phút."},{text:"Ghi log sự cố vào CRM, tag case kỹ thuật."}], note:"Không để học sinh chờ quá 15 phút mà không có phản hồi. Luôn chủ động cập nhật tiến độ xử lý.", template:"Chào [Tên], chúng tôi đã nhận được phản ánh và đang xử lý ngay. Vui lòng thử [bước cụ thể]. Chúng tôi sẽ liên hệ lại trong vòng [X phút]." },
+  { id:2, group:"technical", icon:"🔧", priority:"urgent", priorityLabel:"Khẩn", title:"Nền tảng học bị lỗi khi đang học giữa chừng", sla:"Phản hồi trong 15 phút", slaClass:"sla-urgent", owner:"CSKH L1 + IT on-call", steps:[{text:"Nhận thông báo qua kênh ưu tiên (chat nhanh / hotline).",first:true},{text:"Xác nhận lỗi diện rộng hay cá nhân (kiểm tra status page)."},{text:"Thông báo giáo viên & học sinh qua kênh phụ (email / Zalo / WhatsApp)."},{text:"Cung cấp link phòng backup (Zoom/Meet dự phòng)."},{text:"Bù buổi học, ghi nhận vào hồ sơ khách hàng."}], note:"Luôn có kịch bản phòng học dự phòng sẵn sàng. Lỗi diện rộng phải thông báo hàng loạt ngay lập tức." },
+  { id:3, group:"timezone", icon:"🕐", priority:"medium", priorityLabel:"Trung bình", title:"Học sinh nhầm múi giờ, vào lớp muộn / sai buổi", sla:"Xử lý trong ngày", slaClass:"sla-medium", owner:"CSKH L1", steps:[{text:"Xác nhận múi giờ học sinh đang ở và múi giờ lịch học.",first:true},{text:"Cập nhật lịch học trong hệ thống theo múi giờ địa phương của học sinh."},{text:"Gửi xác nhận lịch học mới kèm link world clock để học sinh tự kiểm tra."},{text:"Thiết lập nhắc nhở tự động 24h + 1h trước buổi học theo múi giờ đúng."},{text:"Ghi múi giờ vào profile khách hàng trong CRM."}], template:"Chào [Tên], chúng tôi đã cập nhật lịch học theo múi giờ [múi giờ] của bạn. Buổi học tiếp theo là [ngày giờ địa phương]. Bạn sẽ nhận nhắc nhở tự động trước 1 giờ." },
+  { id:4, group:"timezone", icon:"🕐", priority:"medium", priorityLabel:"Trung bình", title:"Học sinh yêu cầu đổi lịch học vì lệch múi giờ", sla:"Phản hồi 24h, xử lý trong 48h", slaClass:"sla-medium", owner:"CSKH L1 + bộ phận xếp lịch", steps:[{text:"Xác nhận múi giờ hiện tại và khung giờ học sinh có thể học.",first:true},{text:"Kiểm tra slot giáo viên phù hợp trong khung giờ đó."},{text:"Đề xuất 2–3 lựa chọn lịch học mới kèm giờ địa phương rõ ràng."},{text:"Xác nhận lịch học mới với cả học sinh và giáo viên."},{text:"Cập nhật CRM, gửi xác nhận lịch chính thức."}], note:"Không xác nhận lịch đổi khi chưa có giáo viên accept. Tránh tạo lịch trùng hoặc giáo viên overload." },
+  { id:5, group:"payment", icon:"💳", priority:"urgent", priorityLabel:"Khẩn", title:"Thẻ quốc tế bị từ chối / không thanh toán được", sla:"Hỗ trợ trong 1 giờ", slaClass:"sla-urgent", owner:"CSKH L1 + Finance", steps:[{text:"Xác nhận phương thức thanh toán học sinh đang dùng và loại lỗi.",first:true},{text:"Hướng dẫn giải pháp: đổi thẻ, dùng PayPal, chuyển khoản, Wise."},{text:"Nếu lỗi từ cổng thanh toán → báo Finance để kiểm tra."},{text:"Đảm bảo học sinh vẫn được học trong thời gian xử lý (không khoá tài khoản ngay)."},{text:"Sau khi thanh toán thành công → gửi hoá đơn và cập nhật trạng thái CRM."}], note:"Không khoá tài khoản học sinh đang học trong khi xử lý thanh toán.", policy:"Chính sách: Học sinh tiếp tục học bình thường trong tối đa 48h kể từ khi nhận thông báo lỗi thanh toán. Sau 48h không giải quyết → escalate L2." },
+  { id:6, group:"payment", icon:"💳", priority:"urgent", priorityLabel:"Khẩn", title:"Phụ huynh chưa muốn đóng full học phí – học thử từng buổi", sla:"Phản hồi trong 2 giờ", slaClass:"sla-urgent", owner:"CSKH L1 + Academic Advisor", steps:[{text:"Xác nhận nhu cầu: PH muốn học thử bao nhiêu buổi trước khi quyết định.",first:true},{text:"Giải thích chính sách học thử: số buổi tối đa, mức học phí theo buổi lẻ."},{text:"Thu học phí buổi lẻ trước khi bắt đầu mỗi buổi (prepaid)."},{text:"Phát tài liệu rời từng buổi – không gửi toàn bộ tài liệu khóa học."},{text:"Sau mỗi buổi: gửi phản hồi giáo viên + đề xuất đăng ký gói học dài hạn với ưu đãi cụ thể."},{text:"Nếu PH đồng ý đăng ký gói → chuyển qua quy trình thanh toán đầy đủ."}], note:"Không gửi toàn bộ tài liệu khóa học khi chưa đóng học phí trọn gói. Tài liệu từng buổi chỉ bao gồm nội dung buổi hôm đó.", policy:"Học phí buổi lẻ = học phí gói / số buổi × 1.2 (hệ số lẻ). Tối đa 3 buổi lẻ – sau đó yêu cầu đăng ký gói hoặc dừng học. Ghi rõ vào hợp đồng học thử.", template:"Chào [Tên PH], cảm ơn bạn đã quan tâm đến khóa học! Để bạn yên tâm hơn, chúng tôi có thể sắp xếp [X] buổi học thử với học phí [mức/buổi]. Sau mỗi buổi bé sẽ nhận tài liệu tương ứng. Nếu bạn hài lòng và đăng ký gói đầy đủ, phần học phí buổi lẻ sẽ được tính vào tổng học phí. Bạn có muốn sắp xếp buổi đầu tiên không?" },
+  { id:7, group:"payment", icon:"💳", priority:"medium", priorityLabel:"Trung bình", title:"Phụ huynh muốn đóng học phí từng tháng", sla:"Xử lý trong ngày", slaClass:"sla-medium", owner:"CSKH L1 + Finance", steps:[{text:"Xác nhận gói học phí và chính sách thanh toán theo tháng hiện hành.",first:true},{text:"Thông báo rõ: thanh toán đầu tháng / cuối tháng và hạn chót."},{text:"Thiết lập nhắc nhở tự động 5 ngày trước hạn thanh toán."},{text:"Ghi rõ lịch thanh toán tháng vào CRM profile của học sinh."},{text:"Nếu trễ hạn: nhắc nhở lần 1 (ngày hạn), lần 2 (hạn + 3 ngày), escalate L2 (hạn + 7 ngày)."}], note:"Học sinh vẫn học bình thường trong 7 ngày ân hạn sau hạn thanh toán. Không khoá tài khoản trước ân hạn.", policy:"Thanh toán tháng: hạn chót là ngày 5 mỗi tháng. Ân hạn 7 ngày. Sau ân hạn: tạm khoá đến khi thanh toán. Không áp dụng ưu đãi học phí gói cho hình thức tháng.", template:"Chào [Tên PH], học phí tháng [tháng] là [số tiền], hạn thanh toán ngày [ngày]. Bạn có thể thanh toán qua [phương thức]. Chúng tôi sẽ nhắc bạn 5 ngày trước hạn." },
+  { id:8, group:"payment", icon:"💳", priority:"medium", priorityLabel:"Trung bình", title:"Phụ huynh muốn mua tài liệu cả khóa nhưng chưa đóng học phí", sla:"Xử lý trong 24h", slaClass:"sla-medium", owner:"CSKH L1", steps:[{text:"Xác nhận PH muốn mua tài liệu riêng hay tài liệu đi kèm khóa học.",first:true},{text:"Báo giá tài liệu trọn bộ và hướng dẫn thanh toán."},{text:"Sau khi xác nhận thanh toán thành công → gửi toàn bộ tài liệu qua email / Google Drive."},{text:"Ghi nhận vào CRM: PH đã có tài liệu, chưa đăng ký gói học chính thức."},{text:"Follow-up sau 7 ngày để tư vấn gói học phù hợp."}], note:"Tuyệt đối không gửi tài liệu trước khi xác nhận thanh toán. Kiểm tra biên lai thực tế trước khi gửi.", policy:"Tài liệu cả khóa chỉ được gửi sau khi Finance xác nhận thanh toán. Nếu PH sau đó đăng ký gói học, giá trị tài liệu đã mua được trừ vào học phí gói.", template:"Chào [Tên PH], chúng tôi đã nhận được thanh toán tài liệu khóa [tên khóa]. Bộ tài liệu đầy đủ đã được gửi đến email [email] của bạn. Nếu bạn muốn đăng ký học chính thức, giá trị tài liệu sẽ được khấu trừ vào học phí." },
+  { id:9, group:"payment", icon:"💳", priority:"urgent", priorityLabel:"Khẩn", title:"Phụ huynh yêu cầu hoàn tiền / dừng học", sla:"Phản hồi trong 24h", slaClass:"sla-urgent", owner:"CSKH L2 + Finance", steps:[{text:"Lắng nghe lý do, không phản bác. Ghi nhận đầy đủ vào CRM.",first:true},{text:"Xác minh số buổi đã học, chính sách hoàn tiền hiện hành."},{text:"Đề xuất phương án giữ chân: tạm hoãn, đổi giáo viên, điều chỉnh lịch."},{text:"Nếu PH vẫn muốn hoàn tiền → xử lý theo đúng quy trình Finance."},{text:"Follow-up sau 3 ngày (nếu tạm hoãn) hoặc gửi khảo sát phản hồi."}], note:"Mọi yêu cầu hoàn tiền là cơ hội tìm hiểu vấn đề gốc rễ. Đừng để case đóng mà không có root cause." },
+  { id:10, group:"content", icon:"📚", priority:"normal", priorityLabel:"Bình thường", title:"Học sinh không theo kịp chương trình / muốn đổi level", sla:"Phản hồi trong 48h", slaClass:"sla-normal", owner:"CSKH L1 + Academic Advisor", steps:[{text:"Thu thập phản hồi cụ thể: bài nào khó, kỹ năng nào yếu.",first:true},{text:"Đề nghị giáo viên đánh giá lại placement."},{text:"Đề xuất điều chỉnh: học bổ sung, đổi level, thêm tài liệu hỗ trợ."},{text:"Xác nhận phương án với phụ huynh/học sinh và giáo viên."},{text:"Follow-up sau 2 tuần để đánh giá tiến bộ."}] },
+  { id:11, group:"content", icon:"📚", priority:"urgent", priorityLabel:"Khẩn", title:"Phụ huynh không hài lòng với chất lượng giáo viên", sla:"Phản hồi trong 12h", slaClass:"sla-urgent", owner:"CSKH L2 + Academic Manager", steps:[{text:"Tiếp nhận khiếu nại với thái độ cầu thị, không bào chữa cho giáo viên.",first:true},{text:"Thu thập bằng chứng cụ thể (buổi học nào, vấn đề gì)."},{text:"Xem xét recording / báo cáo buổi học nếu có."},{text:"Đề xuất đổi giáo viên hoặc sắp xếp buổi học thử với giáo viên mới."},{text:"Báo cáo nội bộ về chất lượng giáo viên, không để lặp lại."}], note:"Không nói 'giáo viên đúng, học sinh sai' với phụ huynh. Trung lập, điều tra, giải quyết." },
+  { id:12, group:"communication", icon:"💬", priority:"medium", priorityLabel:"Trung bình", title:"Rào cản ngôn ngữ – PH/học sinh không hiểu tiếng Anh/Việt", sla:"Xử lý trong ngày", slaClass:"sla-medium", owner:"CSKH L1", steps:[{text:"Xác định ngôn ngữ học sinh/phụ huynh sử dụng.",first:true},{text:"Sử dụng mẫu email đã dịch sẵn hoặc công cụ dịch (DeepL / Google Translate)."},{text:"Nếu giao tiếp phức tạp → nhờ cộng tác viên ngôn ngữ."},{text:"Ghi ngôn ngữ ưu tiên vào profile CRM để lần sau xử lý đúng kênh."}], note:"Mọi tài liệu quan trọng (hợp đồng, chính sách hoàn tiền) cần có bản song ngữ." },
+  { id:13, group:"communication", icon:"💬", priority:"normal", priorityLabel:"Bình thường", title:"Học sinh im lặng, không phản hồi sau nhiều lần liên lạc", sla:"Theo quy trình win-back", slaClass:"sla-normal", owner:"CSKH L1 → Account Manager", steps:[{text:"Gửi email/tin nhắn kiểm tra tình trạng (không phán xét, chỉ hỏi thăm).",first:true},{text:"Thử kênh liên lạc khác: WhatsApp, Zalo, email phụ huynh."},{text:"Sau 3 lần không phản hồi → escalate lên Account Manager."},{text:"Gửi email win-back sau 30 ngày nếu vẫn không có phản hồi."},{text:"Đánh dấu 'Inactive' trong CRM, thiết lập chuỗi re-engagement."}], template:"Chào [Tên], chúng tôi thấy bạn chưa tham gia học gần đây và muốn hỏi thăm. Bạn có cần hỗ trợ gì không? Chúng tôi luôn sẵn sàng điều chỉnh lịch học phù hợp hơn với bạn." },
+  { id:14, group:"retention", icon:"🔄", priority:"medium", priorityLabel:"Trung bình", title:"Học sinh muốn tạm hoãn học vì lý do cá nhân", sla:"Phản hồi trong 24h", slaClass:"sla-medium", owner:"CSKH L1", steps:[{text:"Lắng nghe lý do tạm hoãn, thể hiện sự đồng cảm.",first:true},{text:"Giải thích chính sách tạm hoãn (tối đa bao lâu, điều kiện)."},{text:"Ghi nhận ngày tạm hoãn, thiết lập nhắc nhở follow-up trước khi hết hạn."},{text:"Gửi nội dung học tự học (tài liệu, video) trong thời gian tạm hoãn."},{text:"Follow-up 1 tuần trước khi tạm hoãn hết hạn để tái kích hoạt."}], note:"Giai đoạn tạm hoãn là thời điểm vàng để duy trì kết nối. Đừng để học sinh 'nguội lạnh' hoàn toàn." },
+  { id:15, group:"retention", icon:"🔄", priority:"urgent", priorityLabel:"Khẩn", title:"Học sinh phàn nàn về tiến độ học chậm, không thấy cải thiện", sla:"Phản hồi trong 24h", slaClass:"sla-urgent", owner:"CSKH L2 + Academic Advisor", steps:[{text:"Xác nhận mục tiêu ban đầu và kỳ vọng tiến độ của học sinh.",first:true},{text:"Xem xét dữ liệu học: tần suất, điểm bài tập, chuyên cần."},{text:"Cùng học sinh/phụ huynh xây dựng lại lộ trình có mốc rõ ràng."},{text:"Cung cấp báo cáo tiến bộ hàng tháng để học sinh thấy kết quả cụ thể."},{text:"Follow-up sau 30 ngày để đánh giá lại cảm nhận."}], note:"Học sinh 'không thấy cải thiện' thường do thiếu dữ liệu phản hồi. Báo cáo định kỳ là công cụ giữ chân hiệu quả nhất." }
+];
+
+/* ═══ FIREBASE (đồng bộ dữ liệu thời gian thực) ═══ */
+// 🔧 DÁN config Firebase của bạn vào đây — xem hướng dẫn trong file HUONG_DAN_SETUP.md
+const firebaseConfig = {
+  apiKey: "AIzaSyD7jmBLDIEbiy3Hcd3BDalnVGlpYAKqN-A",
+  authDomain: "crm---at.firebaseapp.com",
+  databaseURL: "https://crm---at-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "crm---at",
+  storageBucket: "crm---at.firebasestorage.app",
+  messagingSenderId: "745293165701",
+  appId: "1:745293165701:web:905e6d2b4f93a5786ca5ec",
+  measurementId: "G-00W6YVPLCP"
+};
+
+let casesRef = null;
+try {
+  firebase.initializeApp(firebaseConfig);
+  casesRef = firebase.database().ref('cases');
+} catch (err) {
+  console.error('Lỗi khởi tạo Firebase — kiểm tra lại firebaseConfig:', err);
+}
+
+function setSyncStatus(state) {
+  const dot = document.getElementById('sync-dot');
+  const txt = document.getElementById('sync-text');
+  if (!dot || !txt) return;
+  if (state === 'unconfigured') { dot.className = 'sync-dot offline'; txt.textContent = 'Chưa cấu hình Firebase'; }
+  else if (state === 'online') { dot.className = 'sync-dot online'; txt.textContent = 'Đã đồng bộ'; }
+  else { dot.className = 'sync-dot offline'; txt.textContent = 'Mất kết nối'; }
+}
+
+// Mỗi tình huống được lưu dưới 1 khoá riêng (cases/{id}) thay vì cả mảng gộp chung,
+// để 2 người sửa 2 tình huống khác nhau cùng lúc sẽ không ghi đè lên nhau.
+function saveCaseToCloud(id, caseObj) {
+  if (!casesRef) { console.warn('Chưa kết nối Firebase — thay đổi chỉ lưu tạm trên máy này.'); return; }
+  casesRef.child(id).set(caseObj).catch(err => console.error('Lỗi lưu lên Firebase:', err));
+}
+function deleteCaseFromCloud(id) {
+  if (!casesRef) { console.warn('Chưa kết nối Firebase — xoá chỉ áp dụng tạm trên máy này.'); return; }
+  casesRef.child(id).remove().catch(err => console.error('Lỗi xoá trên Firebase:', err));
+}
+
+let CASES = JSON.parse(JSON.stringify(DEFAULT_CASES));
+let nextId = Math.max(0, ...CASES.map(c => c.id)) + 1;
+let currentGroup = 'all';
+let currentPriority = null;
+let currentSearch = '';
+let editingId = null;
+let openCardIds = new Set();
+
+if (casesRef) {
+  // Lắng nghe real-time: bất kỳ máy nào sửa/thêm/xoá, mọi máy khác đang mở trang sẽ tự cập nhật.
+  casesRef.on('value', snapshot => {
+    const data = snapshot.val();
+    if (data) {
+      CASES = Object.values(data);
+    } else {
+      // Lần đầu tiên database trống → khởi tạo bằng 15 tình huống mặc định.
+      CASES = JSON.parse(JSON.stringify(DEFAULT_CASES));
+      const seed = {};
+      CASES.forEach(c => seed[c.id] = c);
+      casesRef.set(seed);
+    }
+    nextId = Math.max(0, ...CASES.map(c => c.id)) + 1;
+    renderCases(getFiltered());
+  }, err => { console.error('Mất quyền truy cập Firebase:', err); setSyncStatus('offline'); });
+
+  firebase.database().ref('.info/connected').on('value', snap => {
+    setSyncStatus(snap.val() === true ? 'online' : 'offline');
+  });
+} else {
+  setSyncStatus('unconfigured');
+}
+
+/* ═══ RENDER ═══ */
+function groupLabel(g) {
+  const m = { technical:'🔧 Kỹ thuật', timezone:'🕐 Múi giờ', payment:'💳 Thanh toán', content:'📚 Nội dung', communication:'💬 Giao tiếp', retention:'🔄 Giữ chân' };
+  return m[g] || g;
+}
+
+function getFiltered() {
+  return CASES.filter(c => {
+    const gOk = currentGroup === 'all' || c.group === currentGroup;
+    const pOk = !currentPriority || c.priority === currentPriority;
+    const q = currentSearch.toLowerCase().trim();
+    const sOk = !q || c.title.toLowerCase().includes(q) || c.owner.toLowerCase().includes(q)
+      || (c.note||'').toLowerCase().includes(q) || (c.template||'').toLowerCase().includes(q);
+    return gOk && pOk && sOk;
+  });
+}
+
+function renderCases(list) {
+  const grid = document.getElementById('cases-grid');
+  const empty = document.getElementById('empty-state');
+  if (!list.length) { grid.innerHTML = ''; empty.style.display = ''; document.getElementById('result-count').textContent = '0 tình huống'; return; }
+  empty.style.display = 'none';
+  document.getElementById('result-count').textContent = list.length + ' tình huống';
+  grid.innerHTML = list.map(c => {
+    const bc = c.priority === 'urgent' ? 'badge-urgent' : c.priority === 'medium' ? 'badge-medium' : 'badge-normal';
+    const steps = c.steps.map((s,i) => `<div class="step-item"><div class="step-num ${s.first?'first':''}">${i+1}</div><div class="step-text">${esc(s.text)}</div></div>`).join('');
+    const note = c.note ? `<div class="note-box"><strong>⚠ Lưu ý:</strong> ${esc(c.note)}</div>` : '';
+    const policy = c.policy ? `<div class="policy-box"><strong>📌 Chính sách áp dụng</strong>${esc(c.policy)}</div>` : '';
+    const tmpl = c.template ? `<div class="template-block"><div class="template-header"><span>Mẫu tin nhắn gợi ý</span><button class="copy-btn" onclick="copyText(${c.id},event)">Sao chép</button></div><div class="template-text" id="tmpl-${c.id}">${esc(c.template)}</div></div>` : '';
+    return `
+    <div class="case-card" data-group="${c.group}" data-priority="${c.priority}" data-id="${c.id}" id="card-${c.id}">
+      <div class="case-header" onclick="toggleCard(${c.id})">
+        <div class="case-icon">${c.icon}</div>
+        <div class="case-title-wrap">
+          <div class="case-title">${esc(c.title)}</div>
+          <div class="case-meta-inline">${esc(c.sla)} · ${esc(c.owner)}</div>
+        </div>
+        <span class="badge ${bc}">${c.priorityLabel}</span>
+        <button class="btn-edit-card" onclick="editCard(${c.id},event)" title="Chỉnh sửa tình huống này">✏️</button>
+        <div class="chevron-btn">▼</div>
+      </div>
+      <div class="case-body">
+        <div class="body-cols">
+          <div><div class="col-label">Quy trình xử lý</div><div class="step-list">${steps}</div></div>
+          <div><div class="col-label">Thông tin case</div><div class="meta-grid">
+            <div class="meta-row-item"><div class="meta-key">Mức độ ưu tiên</div><div class="meta-val"><span class="badge ${bc}">${c.priorityLabel}</span></div></div>
+            <div class="meta-row-item"><div class="meta-key">SLA</div><div class="meta-val ${c.slaClass}">${esc(c.sla)}</div></div>
+            <div class="meta-row-item"><div class="meta-key">Phụ trách</div><div class="meta-val">${esc(c.owner)}</div></div>
+            <div class="meta-row-item"><div class="meta-key">Nhóm</div><div class="meta-val">${groupLabel(c.group)}</div></div>
+          </div></div>
+        </div>
+        ${note}${policy}${tmpl}
+      </div>
+    </div>`;
+  }).join('');
+  openCardIds.forEach(id => { const card = document.getElementById('card-'+id); if (card) card.classList.add('is-open'); });
+  updateStats();
+  updateCounts();
+}
+
+function esc(str) {
+  return String(str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function updateStats() {
+  document.getElementById('s-urgent').textContent = CASES.filter(c=>c.priority==='urgent').length;
+  document.getElementById('s-medium').textContent = CASES.filter(c=>c.priority==='medium').length;
+  document.getElementById('s-normal').textContent = CASES.filter(c=>c.priority==='normal').length;
+  document.getElementById('s-total').textContent = CASES.length;
+}
+
+function updateCounts() {
+  ['technical','timezone','payment','content','communication','retention'].forEach(g => {
+    const el = document.getElementById('cnt-'+g);
+    if (el) el.textContent = CASES.filter(c=>c.group===g).length;
+  });
+  const all = document.getElementById('cnt-all');
+  if (all) all.textContent = CASES.length;
+}
+
+/* ═══ INTERACTIONS ═══ */
+function toggleCard(id) {
+  const card = document.getElementById('card-'+id);
+  if (!card) return;
+  card.classList.toggle('is-open');
+  if (card.classList.contains('is-open')) openCardIds.add(id); else openCardIds.delete(id);
+}
+
+function editCard(id, e) {
+  e.stopPropagation();
+  openModal(id);
+}
+
+function copyText(id, e) {
+  e.stopPropagation();
+  const el = document.getElementById('tmpl-'+id);
+  if (!el) return;
+  navigator.clipboard.writeText(el.textContent).then(() => {
+    const btn = e.target; btn.textContent = 'Đã sao chép!';
+    setTimeout(() => btn.textContent = 'Sao chép', 2000);
+  });
+}
+
+function filterGroup(group, btn) {
+  currentGroup = group; currentPriority = null; currentSearch = '';
+  document.getElementById('search-input').value = '';
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const titles = {all:'Tất cả tình huống',technical:'Kỹ thuật & đăng nhập',timezone:'Múi giờ & lịch học',payment:'Học phí & thanh toán',content:'Nội dung & học tập',communication:'Giao tiếp & hỗ trợ',retention:'Giữ chân & khiếu nại'};
+  document.getElementById('page-title').textContent = titles[group] || 'Tình huống';
+  renderCases(getFiltered());
+}
+
+function filterPriority(priority, btn) {
+  currentGroup = 'all'; currentPriority = priority; currentSearch = '';
+  document.getElementById('search-input').value = '';
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const labels = {urgent:'Khẩn cấp',medium:'Trung bình',normal:'Bình thường'};
+  document.getElementById('page-title').textContent = 'Ưu tiên: ' + (labels[priority]||priority);
+  renderCases(getFiltered());
+}
+
+function doSearch(q) {
+  currentSearch = q;
+  document.getElementById('page-title').textContent = q.trim() ? 'Kết quả tìm kiếm' : 'Tất cả tình huống';
+  renderCases(getFiltered());
+}
+
+/* ═══════════════════════════════════════════
+   MODAL EDITOR
+═══════════════════════════════════════════ */
+function openModal(id) {
+  editingId = id;
+  const overlay = document.getElementById('modal-overlay');
+  const isNew = id === null;
+  document.getElementById('modal-title').textContent = isNew ? 'Thêm tình huống mới' : 'Chỉnh sửa tình huống';
+  document.getElementById('modal-sub').textContent = isNew ? 'Điền đầy đủ thông tin bên dưới' : 'Thay đổi sẽ đồng bộ ngay cho cả nhóm';
+  document.getElementById('btn-delete').style.display = isNew ? 'none' : '';
+  document.getElementById('delete-confirm').classList.remove('show');
+
+  const c = isNew ? { id: null, group:'technical', icon:'🔧', priority:'medium', priorityLabel:'Trung bình', title:'', sla:'', slaClass:'sla-medium', owner:'CSKH L1', steps:[{text:'',first:true}], note:'', policy:'', template:'' } : CASES.find(x => x.id === id);
+  if (!c) return;
+
+  document.getElementById('modal-body').innerHTML = buildModalForm(c);
+  overlay.classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+
+function buildModalForm(c) {
+  const stepsHtml = (c.steps||[]).map((s,i) => stepRow(s.text, i)).join('');
+  return `
+  <div class="field">
+    <label>Tiêu đề tình huống *</label>
+    <input type="text" id="f-title" value="${esc(c.title)}" placeholder="Mô tả ngắn gọn tình huống...">
+  </div>
+  <div class="field-row">
+    <div class="field">
+      <label>Nhóm</label>
+      <select id="f-group">
+        <option value="technical" ${c.group==='technical'?'selected':''}>🔧 Kỹ thuật & đăng nhập</option>
+        <option value="timezone" ${c.group==='timezone'?'selected':''}>🕐 Múi giờ & lịch học</option>
+        <option value="payment" ${c.group==='payment'?'selected':''}>💳 Học phí & thanh toán</option>
+        <option value="content" ${c.group==='content'?'selected':''}>📚 Nội dung & học tập</option>
+        <option value="communication" ${c.group==='communication'?'selected':''}>💬 Giao tiếp & hỗ trợ</option>
+        <option value="retention" ${c.group==='retention'?'selected':''}>🔄 Giữ chân & khiếu nại</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Mức độ ưu tiên</label>
+      <select id="f-priority" onchange="syncPriorityLabel(this.value)">
+        <option value="urgent" ${c.priority==='urgent'?'selected':''}>🔴 Khẩn cấp</option>
+        <option value="medium" ${c.priority==='medium'?'selected':''}>🟡 Trung bình</option>
+        <option value="normal" ${c.priority==='normal'?'selected':''}>🟢 Bình thường</option>
+      </select>
+    </div>
+  </div>
+  <div class="field-row">
+    <div class="field">
+      <label>SLA</label>
+      <input type="text" id="f-sla" value="${esc(c.sla)}" placeholder="vd: Xử lý trong 30 phút">
+    </div>
+    <div class="field">
+      <label>Phụ trách</label>
+      <input type="text" id="f-owner" value="${esc(c.owner)}" placeholder="vd: CSKH L1 + Finance">
+    </div>
+  </div>
+  <div class="field">
+    <label>Quy trình xử lý (các bước)</label>
+    <div class="steps-editor" id="steps-editor">${stepsHtml}</div>
+    <button class="btn-add-step" onclick="addStep()">＋ Thêm bước</button>
+  </div>
+  <div class="field">
+    <label>Lưu ý đặc biệt ⚠</label>
+    <textarea id="f-note" placeholder="Cảnh báo, ngoại lệ cần lưu ý...">${esc(c.note||'')}</textarea>
+  </div>
+  <div class="field">
+    <label>Chính sách áp dụng 📌</label>
+    <textarea id="f-policy" placeholder="Quy định nội bộ, điều kiện áp dụng...">${esc(c.policy||'')}</textarea>
+  </div>
+  <div class="field">
+    <label>Mẫu tin nhắn gợi ý 💬</label>
+    <textarea id="f-template" style="min-height:90px" placeholder="Mẫu tin nhắn gửi cho học sinh/phụ huynh. Dùng [Tên], [ngày], [số tiền]... làm placeholder.">${esc(c.template||'')}</textarea>
+  </div>`;
+}
+
+function stepRow(text, idx) {
+  return `<div class="step-edit-row" id="step-row-${idx}">
+    <span class="step-drag-handle" title="Kéo để sắp xếp">⠿</span>
+    <input type="text" placeholder="Mô tả bước ${idx+1}..." value="${esc(text)}" oninput="reindexSteps()">
+    <button class="btn-icon" onclick="removeStep(${idx})" title="Xoá bước này">✕</button>
+  </div>`;
+}
+
+function addStep() {
+  const editor = document.getElementById('steps-editor');
+  const idx = editor.children.length;
+  const div = document.createElement('div');
+  div.innerHTML = stepRow('', idx);
+  editor.appendChild(div.firstElementChild);
+  editor.lastElementChild.querySelector('input').focus();
+}
+
+function removeStep(idx) {
+  const row = document.getElementById('step-row-'+idx);
+  if (row) { row.remove(); reindexSteps(); }
+}
+
+function reindexSteps() {
+  const rows = document.querySelectorAll('#steps-editor .step-edit-row');
+  rows.forEach((row, i) => {
+    row.id = 'step-row-'+i;
+    const input = row.querySelector('input');
+    if (input) input.placeholder = 'Mô tả bước '+(i+1)+'...';
+    const btn = row.querySelector('.btn-icon');
+    if (btn) btn.setAttribute('onclick', 'removeStep('+i+')');
+  });
+}
+
+function syncPriorityLabel(val) { /* kept for potential use */ }
+
+function saveModal() {
+  const title = document.getElementById('f-title').value.trim();
+  if (!title) { document.getElementById('f-title').focus(); document.getElementById('f-title').style.borderColor='var(--urgent)'; return; }
+
+  const group = document.getElementById('f-group').value;
+  const priority = document.getElementById('f-priority').value;
+  const priorityLabel = priority === 'urgent' ? 'Khẩn' : priority === 'medium' ? 'Trung bình' : 'Bình thường';
+  const slaClass = priority === 'urgent' ? 'sla-urgent' : priority === 'medium' ? 'sla-medium' : 'sla-normal';
+  const sla = document.getElementById('f-sla').value.trim();
+  const owner = document.getElementById('f-owner').value.trim();
+  const note = document.getElementById('f-note').value.trim();
+  const policy = document.getElementById('f-policy').value.trim();
+  const template = document.getElementById('f-template').value.trim();
+
+  const stepInputs = document.querySelectorAll('#steps-editor .step-edit-row input');
+  const steps = Array.from(stepInputs).map((inp, i) => ({ text: inp.value.trim(), first: i === 0 })).filter(s => s.text);
+
+  const iconMap = { technical:'🔧', timezone:'🕐', payment:'💳', content:'📚', communication:'💬', retention:'🔄' };
+
+  let savedCase = null;
+  if (editingId === null) {
+    savedCase = { id: nextId++, group, icon: iconMap[group]||'📋', priority, priorityLabel, title, sla, slaClass, owner, steps, note, policy, template };
+    CASES.push(savedCase);
+  } else {
+    const idx = CASES.findIndex(c => c.id === editingId);
+    if (idx !== -1) {
+      savedCase = { ...CASES[idx], group, icon: iconMap[group]||CASES[idx].icon, priority, priorityLabel, title, sla, slaClass, owner, steps, note, policy, template };
+      CASES[idx] = savedCase;
+    }
+  }
+
+  if (savedCase) saveCaseToCloud(savedCase.id, savedCase);
+  closeModal();
+  renderCases(getFiltered());
+
+  // flash the saved card
+  if (editingId !== null) {
+    setTimeout(() => {
+      const card = document.getElementById('card-'+editingId);
+      if (card) { card.style.transition='box-shadow .1s'; card.style.boxShadow='0 0 0 3px rgba(59,91,219,0.3)'; setTimeout(()=>card.style.boxShadow='',700); }
+    }, 80);
+  }
+}
+
+function askDelete() {
+  document.getElementById('delete-confirm').classList.add('show');
+}
+
+function confirmDelete() {
+  if (editingId === null) return;
+  CASES = CASES.filter(c => c.id !== editingId);
+  deleteCaseFromCloud(editingId);
+  closeModal();
+  renderCases(getFiltered());
+}
+
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('show');
+  document.body.style.overflow = '';
+  editingId = null;
+}
+
+function maybeCloseModal(e) {
+  if (e.target === document.getElementById('modal-overlay')) closeModal();
+}
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+/* ═══ INIT ═══ */
+renderCases(CASES);
+</script>
+</body>
+</html>
