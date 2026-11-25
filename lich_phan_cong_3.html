@@ -1,0 +1,181 @@
+<!DOCTYPE html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Lịch Phân Công Văn Phòng</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font:12px Arial,sans-serif;background:#f3f4f6;color:#222}
+button,input,select{font:inherit}
+.bar{background:#1f2937;color:#fff;padding:8px 14px;display:flex;flex-wrap:wrap;gap:6px;align-items:center;position:sticky;top:0;z-index:20}
+.bar b{font-size:14px;margin-right:8px}
+.btn{border:0;border-radius:6px;padding:6px 10px;cursor:pointer;font-weight:700;background:#e5e7eb;color:#111}
+.btn.p{background:#2783de;color:#fff}.btn.g{background:#46a171;color:#fff}.btn.o{background:#d5803b;color:#fff}.btn.r{background:#e56458;color:#fff}
+.row2{background:#fff;border-bottom:1px solid #ddd;padding:6px 14px;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.chip{border:1px solid #333;border-radius:5px;padding:4px 8px;cursor:pointer;font-weight:700;font-size:11px;background:#fff;display:inline-block}
+.chip:hover{outline:2px solid #2783de}.chip small{font-weight:400;color:#d00}
+.hint{color:#6b7280;font-size:11px}
+#wrap{padding:12px 14px;overflow:auto}
+.sch{border-collapse:collapse;background:#fff;user-select:none;font-size:11px;font-family:Arial,sans-serif}
+.sch th,.sch td{border:1px solid #222;text-align:center;padding:2px 3px;line-height:1.25}
+.sch th{background:#bdd7ee;font-weight:700;padding:4px 3px}
+.sch th.sl{background:#d9e8f6;font-size:10px;padding:1px}
+.sch td.nm{background:#bdd7ee;font-weight:700;text-align:left;padding:2px 6px;min-width:100px;position:sticky;left:0;z-index:2;white-space:nowrap;cursor:pointer}
+.sch td.c{min-width:66px;height:42px;vertical-align:middle;cursor:cell}
+.sch .d0{border-left:2px solid #000}
+.sch td.c.sel{box-shadow:inset 0 0 0 3px #2783de;background-image:linear-gradient(rgba(39,131,222,.18),rgba(39,131,222,.18))}
+.red{color:#e00000}
+.nm .t{display:none;position:absolute;right:1px;top:1px;font-size:10px;background:#fff;border-radius:3px}
+.nm:hover .t{display:block}.t span{cursor:pointer;padding:0 2px}
+th.we{background:#9dc3e6!important}.sch th.ct{position:sticky;left:0;z-index:3}
+.mm td.c{min-width:34px;font-size:9px;padding:1px}.mm th.sl{font-size:9px}.mm th{font-size:10px}
+.sch td.c.sel{cursor:grab}.sch td.c.drop{outline:3px dashed #e56458;outline-offset:-3px}.sch td.nm.dt{box-shadow:inset 0 4px 0 #e56458}
+#ov{position:fixed;inset:0;background:rgba(0,0,0,.4);display:none;align-items:center;justify-content:center;z-index:50}
+.md{background:#fff;border-radius:10px;padding:18px;min-width:360px;max-width:600px;max-height:88vh;overflow:auto}
+.md h3{margin:0 0 8px}.md label{display:block;margin:8px 0 3px;font-weight:700;color:#555}
+.md input[type=text],.md select{width:100%;padding:6px;border:1px solid #ccc;border-radius:6px}
+.fr{display:flex;gap:6px;align-items:center;margin:5px 0}
+#ts{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:#111;color:#fff;padding:8px 14px;border-radius:8px;display:none;z-index:99}
+</style></head><body>
+<div class="bar"><b>📅 LỊCH PHÂN CÔNG</b>
+<button class="btn p" id="mw" onclick="setMode(mode=='w'?'m':'w')"></button><button class="btn" id="pv">◀</button><span id="wk" style="font-weight:700;min-width:170px;text-align:center"></span><button class="btn" id="nx">▶</button>
+<input type="date" id="dp"><button class="btn" id="td">Hôm nay</button>
+<span class="wo"><button class="btn g" onclick="cw(-7,0)">⤓ Lấy từ tuần trước</button> <button class="btn g" onclick="cw(0,7)">⤒ Chép sang tuần sau</button> <button class="btn g" onclick="cwm()">⇊ Chép tuần này cho cả tháng</button></span>
+<span style="flex:1"></span><span id="st" class="hint"></span>
+<button class="btn" onclick="undoF()">↶ Hoàn tác</button><button class="btn o" onclick="png()">🖼 Lưu ảnh PNG</button><button class="btn p" onclick="openBk()">💾 Sao lưu</button></div>
+<div class="row2"><b>Ca:</b> <span id="sc"></span><label><input type="checkbox" id="pm"> 🖌 Tô nhanh</label>
+<button class="btn" onclick="copy()">⎘ Sao chép</button><button class="btn" onclick="paste()">📋 Dán</button><button class="btn" onclick="openEd()">✎ Giờ/ghi chú</button><button class="btn" onclick="openSh()">⚙ Chỉnh ca</button><button class="btn" onclick="addStaff()">+ Nhân viên</button></div>
+<div class="row2"><b>Mẫu nhanh:</b> <span id="tc"></span></div>
+<div class="row2 hint"><b>Kéo ô đã chọn</b> sang chỗ khác để di chuyển (giữ Ctrl/Alt = sao chép) • <b>Kéo tên nhân viên</b> lên/xuống để đổi vị trí, nhấp đúp tên để đổi tên, nút # để nhập số thứ tự • Kéo chuột chọn nhiều ô (Shift+click mở rộng) • Ctrl+C / Ctrl+V sao chép – dán • phím 1-9 chọn ca • nhấp đúp = giờ/ghi chú • Delete = xóa • nhấp tên NV = chọn cả tuần của NV đó</div>
+<div id="wrap"></div><div id="ov"><div class="md" id="md"></div></div><div id="ts"></div>
+<script>
+const DAYS=['Thứ Hai','Thứ Ba','Thứ Tư','Thứ Năm','Thứ Sáu','Thứ Bảy','Chủ Nhật'],SL=['S','C','T'],KEY='lpc_main',BK='lpc_bk';
+const $=id=>document.getElementById(id),esc=s=>String(s??'').replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
+const addD=(d,n)=>{const x=new Date(d);x.setDate(x.getDate()+n);return x};
+const p2=n=>String(n).padStart(2,'0'),iso=d=>d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate()),dm=d=>p2(d.getDate())+'/'+p2(d.getMonth()+1);
+const monday=d=>{const x=new Date(d.getFullYear(),d.getMonth(),d.getDate());x.setDate(x.getDate()-(x.getDay()+6)%7);return x};
+let mv=null,dragR=null,mode='w',ND=7,NC=21,S,ws=monday(new Date()),sel=null,anc=null,drag=false,clip=null,undo=[],brush=null,TP=[];
+const def=()=>({shifts:[
+{id:'HQ',code:'HQ',name:'Hành quân',bg:'#ffffff',merge:false},{id:'MDC',code:'MDC',name:'Mở điểm chính',bg:'#c6e0b4',merge:false},
+{id:'ONL',code:'Online',name:'Online',bg:'#ffffff',merge:false},{id:'OFF',code:'OFF',name:'Nghỉ',bg:'#f4b183',merge:true}],
+staff:['189-Yenltp','219-Duyenhck','232-Huyenttc','278-Nhiqq','296-Phuongdm','304-Quyenntl','305-Oanhttk','308-Thaotda','312-Hucatt','300-Tienakt','301-Dunglxh','307-Mydtt','318-Hoàng Nhi','319-Quyenntq','309-Thuna','GV1 (Toán)','GV2 (Tiểu Học)','GV3 (KHTN)'],data:{}});
+const SH=['T2','T3','T4','T5','T6','T7','CN'];
+function norm(){ws=mode=='w'?monday(ws):new Date(ws.getFullYear(),ws.getMonth(),1);ND=mode=='w'?7:new Date(ws.getFullYear(),ws.getMonth()+1,0).getDate();NC=ND*3}
+function setMode(m){mode=m;sel=null;render()}
+const sh=id=>S.shifts.find(s=>s.id===id);
+const key=(c,r)=>iso(addD(ws,c/3|0))+'|'+S.staff[r];
+const get=(r,c)=>(S.data[key(c,r)]||[])[c%3]||null;
+const put=(r,c,v)=>{const k=key(c,r),a=S.data[k]||(S.data[k]=[null,null,null]);a[c%3]=v?{...v}:null;if(!a.some(Boolean))delete S.data[k]};
+function toast(m){const t=$('ts');t.textContent=m;t.style.display='block';clearTimeout(toast.h);toast.h=setTimeout(()=>t.style.display='none',2200)}
+function dl(txt,name,type){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([txt],{type}));a.download=name;a.click()}
+const stamp=()=>iso(new Date())+'_'+p2(new Date().getHours())+p2(new Date().getMinutes());
+// ── Lưu & sao lưu ──
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S));$('st').textContent='✔ Đã tự lưu '+new Date().toLocaleTimeString('vi-VN')}catch(e){$('st').textContent='⚠ Không lưu được (bộ nhớ trình duyệt đầy/bị chặn)'}}
+function snapshot(){try{const j=JSON.stringify(S);let b=JSON.parse(localStorage.getItem(BK)||'[]');
+ if(!b.length||b[0].d!==j){b.unshift({t:Date.now(),d:j});localStorage.setItem(BK,JSON.stringify(b.slice(0,30)))}
+ if(localStorage.getItem('lpc_auto')==='1'&&Object.keys(S.data).length)dl(j,'sao_luu_lich_'+stamp()+'.json','application/json')}catch(e){}}
+function load(){try{S=JSON.parse(localStorage.getItem(KEY))}catch(e){}if(!S||!S.shifts)S=def();snapshot()}
+function openBk(){let b=[];try{b=JSON.parse(localStorage.getItem(BK)||'[]')}catch(e){}
+ modal(`<h3>💾 Sao lưu</h3><p class="hint">Mỗi lần mở file, bản hiện tại được tự lưu thành 1 bản sao lưu (giữ 30 bản gần nhất).</p>
+ <div class="fr"><button class="btn p" onclick="dl(JSON.stringify(S),'sao_luu_lich_'+stamp()+'.json','application/json')">⬇ Tải file sao lưu (.json)</button>
+ <button class="btn" onclick="$('jf').click()">⬆ Nạp file .json</button><input type="file" id="jf" accept=".json" hidden onchange="impJ(this.files[0])"></div>
+ <label style="font-weight:400"><input type="checkbox" ${localStorage.getItem('lpc_auto')==='1'?'checked':''} onchange="localStorage.setItem('lpc_auto',this.checked?1:0)"> Tự tải file .json về máy mỗi lần mở</label>
+ <label>Các bản đã lưu</label>`+(b.map((x,i)=>`<div class="fr"><span style="flex:1">${new Date(x.t).toLocaleString('vi-VN')}</span><button class="btn" onclick="rest(${i})">Khôi phục</button></div>`).join('')||'<p class="hint">Chưa có.</p>')+`<div class="fr" style="justify-content:flex-end"><button class="btn" onclick="closeM()">Đóng</button></div>`)}
+function rest(i){const b=JSON.parse(localStorage.getItem(BK));if(!confirm('Khôi phục bản này? Bản hiện tại vẫn được giữ trong danh sách.'))return;snapshot();S=JSON.parse(b[i].d);closeM();commit()}
+function impJ(f){if(!f)return;const r=new FileReader();r.onload=()=>{try{const o=JSON.parse(r.result);if(!o.shifts||!o.staff)throw 0;snapshot();S=o;closeM();commit();toast('Đã nạp file')}catch(e){alert('File không hợp lệ')}};r.readAsText(f)}
+// ── Vẽ bảng ──
+function cellHTML(c){const s=sh(c.s);if(!s)return'';let h=esc(s.code);if(c.t)h+='<br>'+esc(c.t);if(c.n)h+='<br>('+esc(c.n)+')';return c.t?`<span class="red">${h}</span>`:h}
+function tableHTML(ex){
+ let h=`<table class="sch${mode=='m'?' mm':''}"><tr><th rowspan="2" class="ct" style="min-width:100px">Nhân viên</th>`;
+ for(let d=0;d<ND;d++){const x=addD(ws,d),w=(x.getDay()+6)%7;h+=`<th colspan="3" class="d0${w>4?' we':''}">${mode=='m'?SH[w]+'<br>'+dm(x):DAYS[w]+'<br>('+dm(x)+')'}</th>`}
+ h+='</tr><tr>';for(let d=0;d<ND;d++)SL.forEach((x,k)=>h+=`<th class="sl${k?'':' d0'}${(addD(ws,d).getDay()+6)%7>4?' we':''}">${x}</th>`);h+='</tr>';
+ S.staff.forEach((n,r)=>{
+  h+=`<tr><td class="nm" data-r="${r}"${ex?'':' draggable="true"'}>${esc(n)}${ex?'':'<span class="t"><span data-a="mv" title="Nhập số thứ tự để chuyển vị trí">#</span><span data-a="up">▲</span><span data-a="dn">▼</span><span data-a="rn">✎</span><span data-a="del">✕</span></span>'}</td>`;
+  for(let i=0;i<NC;){const c=get(r,i),s=c&&sh(c.s);let j=i;
+   if(s&&s.merge&&!c.t&&!c.n)while(j<NC-1){const e=get(r,j+1);if(e&&e.s===c.s&&!e.t&&!e.n)j++;else break}
+   h+=`<td class="c${i%3?'':' d0'}" data-r="${r}" data-a="${i}" data-b="${j}" colspan="${j-i+1}"${s?` style="background-color:${s.bg}"`:''}>${c?cellHTML(c):''}</td>`;i=j+1}
+  h+='</tr>'});
+ return h+'</table>'}
+function render(){norm();$('wrap').innerHTML=tableHTML(false);const e=addD(ws,ND-1);$('wk').textContent=mode=='w'?`Tuần ${dm(ws)} – ${dm(e)}/${e.getFullYear()}`:`Tháng ${ws.getMonth()+1}/${ws.getFullYear()}`;$('mw').textContent=mode=='w'?'📆 Xem cả tháng':'📅 Xem theo tuần';document.querySelector('.wo').style.display=mode=='w'?'':'none';$('dp').value=iso(ws);chips();hl()}
+function commit(){save();render()}
+function hl(){document.querySelectorAll('td.c').forEach(td=>{const r=+td.dataset.r,a=+td.dataset.a,b=+td.dataset.b;td.classList.toggle('sel',!!sel&&r>=sel.r1&&r<=sel.r2&&a<=sel.c2&&b>=sel.c1)})}
+function tpls(){const m={};Object.values(S.data).forEach(a=>a.forEach(c=>{if(c&&(c.t||c.n)){const k=JSON.stringify([c.s,c.t||'',c.n||'']);m[k]=(m[k]||0)+1}}));
+ [['HQ','','Trực ONL +QLCV+KVK'],['HQ','','Ngồi bàn GV'],['MDC','3h30-7h30',''],['HQ','4h30-8h30','']].forEach(s=>{const k=JSON.stringify(s);m[k]=(m[k]||0)+.5});
+ return Object.entries(m).sort((a,b)=>b[1]-a[1]).map(e=>JSON.parse(e[0])).filter(t=>sh(t[0])).slice(0,10)}
+function chips(){$('sc').innerHTML=S.shifts.map((s,i)=>`<span class="chip" data-s="${esc(s.id)}" style="background:${s.bg};${brush===s.id?'outline:3px solid #2783de':''}">${i+1}. ${esc(s.code)}</span>`).join(' ')+` <span class="chip" data-s="" style="color:#c00;${brush===''?'outline:3px solid #2783de':''}">✕ Xóa</span>`;
+ TP=tpls();$('tc').innerHTML=TP.map((t,i)=>`<span class="chip" data-t="${i}">${esc(t[0])} <small>${esc(t[1])} ${esc(t[2])}</small></span>`).join(' ')}
+// ── Thao tác ──
+function snap(){undo.push(JSON.stringify(S.data));if(undo.length>40)undo.shift()}
+function each(f){if(!sel)return toast('Hãy chọn ô trước');snap();for(let r=sel.r1;r<=sel.r2;r++)for(let c=sel.c1;c<=sel.c2;c++)f(r,c);commit()}
+const setS=v=>each((r,c)=>put(r,c,v));
+function undoF(){if(!undo.length)return toast('Không còn gì để hoàn tác');S.data=JSON.parse(undo.pop());commit()}
+function copy(){if(!sel)return toast('Hãy chọn ô trước');clip=[];for(let r=sel.r1;r<=sel.r2;r++){const row=[];for(let c=sel.c1;c<=sel.c2;c++){const x=get(r,c);row.push(x?{...x}:null)}clip.push(row)}toast('Đã sao chép '+clip.length*clip[0].length+' ô — chọn ô đích rồi Ctrl+V')}
+function paste(){if(!clip)return toast('Chưa sao chép gì');if(!sel)return toast('Hãy chọn ô đích');snap();
+ const h=clip.length,w=clip[0].length,f=h==1&&w==1,R2=f?sel.r2:Math.min(S.staff.length-1,sel.r1+h-1),C2=f?sel.c2:Math.min(NC-1,sel.c1+w-1);
+ for(let r=sel.r1;r<=R2;r++)for(let c=sel.c1;c<=C2;c++)put(r,c,clip[f?0:r-sel.r1][f?0:c-sel.c1]);commit()}
+function cw(from,to){if(!confirm(to?'Chép toàn bộ tuần này sang tuần sau (ghi đè)?':'Lấy lịch tuần trước về tuần này (ghi đè)?'))return;snap();
+ for(let d=0;d<7;d++)S.staff.forEach(st=>{const a=iso(addD(ws,from+d))+'|'+st,b=iso(addD(ws,to+d))+'|'+st;if(S.data[a])S.data[b]=JSON.parse(JSON.stringify(S.data[a]));else delete S.data[b]});
+ commit();toast('Đã sao chép tuần')}
+function doMove(dr,dc,cp){if(sel.r1+dr<0||sel.r2+dr>=S.staff.length||sel.c1+dc<0||sel.c2+dc>=NC)return toast('Không thả được ra ngoài bảng');
+ snap();const b=[];for(let r=sel.r1;r<=sel.r2;r++)for(let c=sel.c1;c<=sel.c2;c++){const x=get(r,c);b.push(x?{...x}:null)}
+ const w=sel.c2-sel.c1+1;if(!cp)for(let r=sel.r1;r<=sel.r2;r++)for(let c=sel.c1;c<=sel.c2;c++)put(r,c,null);
+ b.forEach((x,i)=>put(sel.r1+dr+(i/w|0),sel.c1+dc+i%w,x));
+ sel={r1:sel.r1+dr,r2:sel.r2+dr,c1:sel.c1+dc,c2:sel.c2+dc};anc={r:sel.r1,a:sel.c1,b:sel.c1};commit();toast(cp?'Đã sao chép tới vị trí mới':'Đã di chuyển')}
+function cwm(){const M=addD(ws,3).getMonth();if(!confirm('Chép tuần này sang tất cả các tuần còn lại của tháng '+(M+1)+' (ghi đè)?'))return;snap();
+ for(let k=1;k<6;k++)for(let d=0;d<7;d++){const t=addD(ws,7*k+d);if(t.getMonth()!==M)continue;S.staff.forEach(st=>{const a=iso(addD(ws,d))+'|'+st,b=iso(t)+'|'+st;if(S.data[a])S.data[b]=JSON.parse(JSON.stringify(S.data[a]));else delete S.data[b]})}
+ commit();toast('Đã chép cho cả tháng')}
+function addStaff(){const n=(prompt('Tên nhân viên:')||'').trim();if(!n||S.staff.includes(n))return;const i=sel?sel.r2+1:S.staff.length;S.staff.splice(i,0,n);commit()}
+function staffOp(r,a){const n=S.staff[r];
+ if(a=='up'&&r>0)[S.staff[r-1],S.staff[r]]=[S.staff[r],S.staff[r-1]];
+ else if(a=='dn'&&r<S.staff.length-1)[S.staff[r+1],S.staff[r]]=[S.staff[r],S.staff[r+1]];
+ else if(a=='mv'){const v=parseInt(prompt('Chuyển "'+n+'" tới vị trí số (1-'+S.staff.length+'):',r+1));if(!v||v<1||v>S.staff.length)return;S.staff.splice(r,1);S.staff.splice(v-1,0,n)}
+ else if(a=='rn'){const w=(prompt('Đổi tên:',n)||'').trim();if(!w||w==n||S.staff.includes(w))return;S.staff[r]=w;Object.keys(S.data).forEach(k=>{const[d,s]=k.split('|');if(s===n){S.data[d+'|'+w]=S.data[k];delete S.data[k]}})}
+ else if(a=='del'){if(!confirm('Xóa nhân viên "'+n+'" và toàn bộ lịch của họ?'))return;S.staff.splice(r,1);Object.keys(S.data).forEach(k=>{if(k.split('|')[1]===n)delete S.data[k]})}
+ sel=null;commit()}
+// ── Modal ──
+function modal(h){$('md').innerHTML=h;$('ov').style.display='flex'}function closeM(){$('ov').style.display='none'}
+function openEd(){if(!sel)return toast('Hãy chọn ô trước');const c=get(sel.r1,sel.c1)||{};
+ modal(`<h3>Giờ & ghi chú</h3><label>Ca</label><select id="e_s">${S.shifts.map(s=>`<option value="${esc(s.id)}"${s.id===c.s?' selected':''}>${esc(s.code)} – ${esc(s.name)}</option>`).join('')}</select>
+ <label>Giờ (hiện chữ đỏ)</label><input type="text" id="e_t" value="${esc(c.t)}" placeholder="vd: 5h-9h30"><label>Ghi chú</label><input type="text" id="e_n" value="${esc(c.n)}" placeholder="vd: Trực ONL +QLCV+KVK">
+ <div class="fr" style="justify-content:flex-end;margin-top:12px"><button class="btn" onclick="closeM()">Hủy</button><button class="btn g" onclick="okEd()">Áp dụng cho các ô đã chọn</button></div>`);$('e_t').focus()}
+function okEd(){const v={s:$('e_s').value,t:$('e_t').value.trim(),n:$('e_n').value.trim()};closeM();setS(v)}
+function readSh(){S.shifts.forEach((s,i)=>{s.bg=$('h_c'+i).value;s.code=$('h_k'+i).value.trim()||s.code;s.name=$('h_n'+i).value.trim();s.merge=$('h_m'+i).checked})}
+function openSh(){modal('<h3>⚙ Chỉnh ca làm</h3><p class="hint">Màu • ký hiệu • tên • “gộp ô” = các ô liên tiếp cùng ca (như OFF) nối thành một ô lớn</p>'+S.shifts.map((s,i)=>`<div class="fr"><input type="color" id="h_c${i}" value="${s.bg}"><input type="text" id="h_k${i}" value="${esc(s.code)}" style="width:80px"><input type="text" id="h_n${i}" value="${esc(s.name)}"><label style="margin:0;font-weight:400;white-space:nowrap"><input type="checkbox" id="h_m${i}"${s.merge?' checked':''}> gộp ô</label><button class="btn r" onclick="delSh(${i})">✕</button></div>`).join('')+
+ '<div class="fr"><button class="btn g" onclick="addSh()">+ Ca mới</button><span style="flex:1"></span><button class="btn" onclick="closeM()">Hủy</button><button class="btn p" onclick="saveSh()">Lưu</button></div>')}
+function addSh(){readSh();S.shifts.push({id:'S'+Date.now(),code:'CA?',name:'Ca mới',bg:'#ffe699',merge:false});openSh()}
+function delSh(i){readSh();if(!confirm('Xóa ca này?'))return;S.shifts.splice(i,1);openSh()}
+function saveSh(){readSh();closeM();commit()}
+// ── Lưu ảnh PNG (3x, nét) ──
+async function png(){toast('Đang tạo ảnh…');
+ if(!window.html2canvas)await new Promise((ok,er)=>{const s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';s.onload=ok;s.onerror=er;document.head.appendChild(s)}).catch(()=>{});
+ if(!window.html2canvas)return alert('Cần kết nối Internet để tải thư viện tạo ảnh (chỉ cần khi lưu ảnh).');
+ const box=document.createElement('div');box.style.cssText='position:absolute;left:0;top:0;background:#fff;z-index:-1;display:inline-block';box.innerHTML=tableHTML(true);document.body.appendChild(box);
+ try{const cv=await html2canvas(box,{scale:mode=='m'?2:3,backgroundColor:'#fff',logging:false});box.remove();
+  cv.toBlob(b=>{const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=(mode=='m'?'lich_thang_':'lich_phan_cong_')+iso(ws)+'.png';a.click();toast('Đã lưu ảnh PNG')},'image/png')}catch(e){box.remove();alert('Lỗi tạo ảnh: '+e)}}
+// ── Sự kiện ──
+const pt=td=>({r:+td.dataset.r,a:+td.dataset.a,b:+td.dataset.b});
+function setSel(p){sel={r1:Math.min(anc.r,p.r),r2:Math.max(anc.r,p.r),c1:Math.min(anc.a,p.a),c2:Math.max(anc.b,p.b)};hl()}
+const inSel=p=>sel&&p.r>=sel.r1&&p.r<=sel.r2&&p.a<=sel.c2&&p.b>=sel.c1;
+$('wrap').addEventListener('mousedown',e=>{const td=e.target.closest('td.c');if(!td||e.button)return;const p=pt(td);
+ if(!e.shiftKey&&!$('pm').checked&&inSel(p)){mv={p,d:null};return}if(!(e.shiftKey&&anc))anc=p;drag=true;setSel(p)});
+$('wrap').addEventListener('mouseover',e=>{
+ if(mv){const td=e.target.closest('td.c');if(!td)return;const t=pt(td),dr=t.r-mv.p.r,dc=t.a-mv.p.a;mv.d=[dr,dc];
+  document.querySelectorAll('td.c').forEach(x=>{const r=+x.dataset.r,a=+x.dataset.a,b=+x.dataset.b;x.classList.toggle('drop',(dr||dc)&&r>=sel.r1+dr&&r<=sel.r2+dr&&a<=sel.c2+dc&&b>=sel.c1+dc)});return}
+ if(!drag)return;const td=e.target.closest('td.c');if(td)setSel(pt(td))});
+document.addEventListener('mouseup',e=>{
+ if(mv){const m=mv;mv=null;document.querySelectorAll('.drop').forEach(x=>x.classList.remove('drop'));
+  if(m.d&&(m.d[0]||m.d[1]))doMove(m.d[0],m.d[1],e.ctrlKey||e.altKey);else{anc=m.p;setSel(m.p)}return}
+ if(drag){drag=false;if($('pm').checked&&brush!==null&&sel)setS(brush?{s:brush}:null)}});
+$('wrap').addEventListener('dblclick',e=>{if(e.target.closest('td.c'))openEd();else{const n=e.target.closest('td.nm');if(n&&!e.target.dataset.a)staffOp(+n.dataset.r,'rn')}});
+$('wrap').addEventListener('dragstart',e=>{const n=e.target.closest&&e.target.closest('td.nm');if(!n)return;dragR=+n.dataset.r;e.dataTransfer.setData('text','x');e.dataTransfer.effectAllowed='move'});
+$('wrap').addEventListener('dragover',e=>{const n=e.target.closest('td.nm');if(n&&dragR!==null){e.preventDefault();document.querySelectorAll('.dt').forEach(x=>x.classList.remove('dt'));n.classList.add('dt')}});
+$('wrap').addEventListener('drop',e=>{const n=e.target.closest('td.nm');if(!n||dragR===null)return;e.preventDefault();const to=+n.dataset.r,[x]=S.staff.splice(dragR,1);S.staff.splice(to,0,x);dragR=null;sel=null;commit()});
+$('wrap').addEventListener('dragend',()=>{dragR=null;document.querySelectorAll('.dt').forEach(x=>x.classList.remove('dt'))});
+$('wrap').addEventListener('click',e=>{const nm=e.target.closest('td.nm');if(!nm)return;const r=+nm.dataset.r,a=e.target.dataset.a;
+ if(a)return staffOp(r,a);anc={r,a:0,b:NC-1};sel={r1:r,r2:r,c1:0,c2:NC-1};hl()});
+$('sc').onclick=e=>{const c=e.target.closest('.chip');if(!c)return;const id=c.dataset.s;if($('pm').checked){brush=brush===id?null:id;chips()}else setS(id?{s:id}:null)};
+$('tc').onclick=e=>{const c=e.target.closest('.chip');if(c){const t=TP[c.dataset.t];setS({s:t[0],t:t[1],n:t[2]})}};
+const nav=n=>{ws=mode=='w'?addD(ws,7*n):new Date(ws.getFullYear(),ws.getMonth()+n,1);sel=null;render()};$('pv').onclick=()=>nav(-1);$('nx').onclick=()=>nav(1);$('td').onclick=()=>{ws=new Date();sel=null;render()};
+$('dp').onchange=e=>{if(e.target.value){ws=new Date(e.target.value+'T00:00');sel=null;render()}};
+$('ov').addEventListener('mousedown',e=>{if(e.target===$('ov'))closeM()});
+document.addEventListener('keydown',e=>{if(/INPUT|TEXTAREA|SELECT/.test(e.target.tagName))return;const k=e.key.toLowerCase();
+ if(e.ctrlKey||e.metaKey){if(k=='c')copy();else if(k=='v')paste();else if(k=='z')undoF();else return;e.preventDefault()}
+ else if(k=='delete'||k=='backspace')setS(null);else if(k=='escape'){sel=null;hl()}
+ else if(/^[1-9]$/.test(k)&&S.shifts[k-1])setS({s:S.shifts[k-1].id})});
+load();render();
+</script></body></html>
